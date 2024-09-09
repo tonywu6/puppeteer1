@@ -38,7 +38,8 @@ async function networkToHar(page) {
 
   await client.send('Page.enable')
   await client.send('Network.enable')
-  ;[
+
+  for (const event of [
     'Page.loadEventFired',
     'Page.domContentEventFired',
     'Page.frameStartedLoading',
@@ -50,13 +51,11 @@ async function networkToHar(page) {
     'Network.resourceChangedPriority',
     'Network.loadingFinished',
     'Network.loadingFailed',
-  ].forEach((event) => {
+  ]) {
     client.on(event, (params) => {
-      if (event === 'Network.dataReceived') {
-      }
       events.push({ method: event, params })
     })
-  })
+  }
 
   return async () => {
     await client.detach()
@@ -74,6 +73,7 @@ async function main() {
   const browser = await puppeteer.launch({
     executablePath,
     headless: false,
+    // https://github.com/GoogleChrome/lighthouse/blob/main/docs/puppeteer.md
     ignoreDefaultArgs: ['--enable-automation'],
     defaultViewport: null,
   })

@@ -1,0 +1,14 @@
+{
+  "name": "puppeteer1",
+  "private": true,
+  "dependencies": {
+    "chrome-har": "^0.13.5",
+    "lighthouse": "^12.2.1",
+    "puppeteer-core": "^23.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.5.4",
+    "typescript": "^5.5.4"
+  },
+  "type": "module"
+}

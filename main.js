@@ -14,10 +14,11 @@ import puppeteer from 'puppeteer-core'
 const executablePath = '/opt/homebrew/bin/chromium'
 
 /** @type {URL} */
-const targetUrl = new URL('https://vercel.com')
+const targetUrl = new URL('https://react.dev/?uwu=1')
 
-/** @type {string | null} */
-const targetElement = 'div[class*="hero_triangle"] > svg > polygon'
+/** @type {(page: puppeteer.Page) => Promise<unknown>} */
+const targetCondition = (page) =>
+  page.waitForResponse((res) => res.url().includes('uwu.png'))
 
 // === OPTIONS ===
 
@@ -64,8 +65,9 @@ async function networkToHar(page) {
 }
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname)
+const pathname = targetUrl.pathname.replaceAll(/[^\w/-]+/g, '-')
 const now = new Date().toISOString().replaceAll(/:/g, '-')
-const outDir = path.join(__dirname, 'dist', targetUrl.hostname, now)
+const outDir = path.join(__dirname, 'dist', targetUrl.hostname, pathname, now)
 
 async function main() {
   await fs.mkdir(outDir, { recursive: true })
@@ -97,13 +99,10 @@ async function main() {
     screenshots: true,
   })
 
-  await page.goto(targetUrl.toString(), { waitUntil: 'networkidle2' })
-
-  if (targetElement) {
-    await page.waitForSelector(targetElement)
-  } else {
-    await confirm('Press any key to stop profiling')
-  }
+  await Promise.all([
+    page.goto(targetUrl.toString(), { waitUntil: 'networkidle2' }),
+    targetCondition(page),
+  ])
 
   await page.tracing.stop()
 
